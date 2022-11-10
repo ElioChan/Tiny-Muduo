@@ -2,6 +2,7 @@
 #include "util.h"
 #include "Epoll.h"
 #include "InetAddress.h"
+#include "Channel.h"
 #include <string.h>  // bzero
 #include <iostream>  // cout
 #include <errno.h>   // errno
@@ -19,24 +20,26 @@ int main() {
     serv_sock->bind(serv_addr);
     serv_sock->listen();
     Epoll *ep = new Epoll();
-    ep->addFd(serv_sock->getFd(), EPOLLIN);
+    Channel *servChannel = new Channel(ep, serv_sock->getFd());
+    servChannel->enableReading();
     while(true) {
-        std::vector<epoll_event> events = ep->poll();
-        int nfds = events.size();
+        std::vector<Channel*> activeChannels = ep->poll();
+        int nfds = activeChannels.size();
         for(int i = 0; i < nfds; i++) {
-            if(events[i].data.fd == serv_sock->getFd()) {
+            if(activeChannels[i]->getFd() == serv_sock->getFd()) {
                 // 连接事件
                 InetAddress *client_addr = new InetAddress();
                 bzero(client_addr, sizeof(client_addr));
                 int conn_fd = accept4(serv_sock->getFd(), (struct sockaddr*) &client_addr->addr, &client_addr->addr_len, SOCK_CLOEXEC | SOCK_NONBLOCK);
                 errif(conn_fd == -1, "accept connection error");
-                ep->addFd(conn_fd, EPOLLIN);
+                Channel *clntChannel = new Channel(ep, conn_fd);
+                clntChannel->enableReading();
                 char addr[INET_ADDRSTRLEN];
-                std::cout << "Client IP:" << inet_ntop(AF_INET, &client_addr->addr.sin_addr, addr, client_addr->addr_len) << std::endl;
+                std::cout << "Client fd:" << conn_fd << " IP:" << inet_ntop(AF_INET, &client_addr->addr.sin_addr, addr, client_addr->addr_len) << std::endl;
                 std::cout << "Port:" << ntohs(client_addr->addr.sin_port) << std::endl;
                 std::cout << "-----------------------------------------------" << std::endl;
-            } else if(events[i].events & EPOLLIN) {
-                handleReadEvent(events[i].data.fd);
+            } else if(activeChannels[i]->getEvents() & EPOLLIN) {
+                handleReadEvent(activeChannels[i]->getFd());
             } else {
                 std::cout << "Something else happened!" << std::endl;
             }

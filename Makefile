@@ -1,4 +1,4 @@
-OBJ1 = server.cpp Epoll.cpp Socket.cpp InetAddress.cpp util.cpp
+OBJ1 = server.cpp Epoll.cpp Socket.cpp InetAddress.cpp util.cpp Channel.cpp
 OBJ2 = client.cpp util.cpp
 all: server client
 
