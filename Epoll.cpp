@@ -2,6 +2,7 @@
 #include "util.h"
 #include <unistd.h>
 #include <string.h>
+#include <iostream>
 
 #define MAX_EVENTS 100
 
@@ -42,7 +43,7 @@ void Epoll::updateChannel(Channel *channel) {
     if(channel->getInEpoll()) {
         errif(epoll_ctl(epfd, EPOLL_CTL_MOD, channel->getFd(), &ev) == -1, "epoll modify error");
     } else {
-        errif(epoll_ctl(epfd, EPOLL_CTL_ADD, channel->getFd(), &ev) == -1, "epoll add error");
+        errif(epoll_ctl(epfd, EPOLL_CTL_ADD, channel->getFd(), &ev) == -1, "epoll add error for updata");
         channel->setInEpoll();
     }
     
@@ -52,7 +53,7 @@ std::vector<Channel*> Epoll::poll(int timeout) {
     // 轮询epoll事件 timeout为超时事件
     // 逻辑 获取所有的事件 然后加入事件
     std::vector<Channel*> activeChannels;
-    int nfds = epoll_wait(epfd, events, MAX_EVENTS, -1);
+    int nfds = epoll_wait(epfd, events, MAX_EVENTS, timeout);
     errif(nfds == -1, "epoll_wait error");
     for(int i = 0; i < nfds; i++) {
         Channel *ch = (Channel*) events[i].data.ptr;

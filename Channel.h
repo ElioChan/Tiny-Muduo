@@ -1,18 +1,20 @@
 #pragma once
 #include <sys/epoll.h>
+#include <functional>
 
-class Epoll;
+class Eventloop;
 
 class Channel
 {
 private:
-    Epoll *ep;
+    Eventloop *loop;
     int fd;
     uint32_t events;
     uint32_t revents;
     bool inEpoll;
+    std::function<void()> callback;
 public:
-    Channel(Epoll *_ep, int _fd);
+    Channel(Eventloop *_loop, int _fd);
     ~Channel();
 
     void enableReading();
@@ -23,6 +25,8 @@ public:
     bool getInEpoll();
     void setInEpoll();
 
+    void handleEvent();
     void setEvents(uint32_t);
     void setRevents(uint32_t);
+    void setcallback(std::function<void()>);
 };
