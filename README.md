@@ -2,6 +2,11 @@
 A tiny server.
 
 
+2022/11/18 V3
+将server类中的功能继续抽象为connection类以及Acceptor类
+1. conncetion类负责处理已经建立的连接上的IO事件 之后有不同的处理逻辑 可以绑定不同的回调函数 connection类对象的声明周期由server类管理 需要绑定delete的回调函数
+2. Acceptor类负责接受新的连接 
+
 2022/11/6 V2
 将server以及client中的功能拆分到Socket InetAddress Epoll util类中 方便后续代码修改
 1. Socket:<br>
