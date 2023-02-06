@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include "util.h"
+#include "src/util.h"
 
 
 #define BUFFER_SIZE 1024
