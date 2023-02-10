@@ -24,14 +24,14 @@ Epoll::~Epoll() {
     delete [] events;
 }
 
-void Epoll::addFd(int fd, uint32_t op) {
-    // 添加监听事件 待添加文件描述符为fd 操作事件为op
-    struct epoll_event event;
-    bzero(&event, sizeof(event));
-    event.data.fd = fd;
-    event.events = op;
-    errif(epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1, "epoll add error");
-}
+// void Epoll::addFd(int fd, uint32_t op) {
+//     // 添加监听事件 待添加文件描述符为fd 操作事件为op
+//     struct epoll_event event;
+//     bzero(&event, sizeof(event));
+//     event.data.fd = fd;
+//     event.events = op;
+//     errif(epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1, "epoll add error");
+// }
 
 void Epoll::updateChannel(Channel *channel) {
     //  更新channel状态 由channel类中的enablereading调用

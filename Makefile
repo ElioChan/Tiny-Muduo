@@ -1,6 +1,6 @@
 OBJ1 = server.cpp src/Epoll.cpp src/Socket.cpp src/InetAddress.cpp src/util.cpp src/Channel.cpp \
-       src/Server.cpp src/Eventloop.cpp src/Connection.cpp src/Acceptor.cpp src/Buffer.cpp
-OBJ2 = client.cpp src/util.cpp
+       src/Server.cpp src/Eventloop.cpp src/Connection.cpp src/Acceptor.cpp src/Buffer.cpp src/ThreadPoll.cpp
+OBJ2 = client.cpp src/util.cpp src/Buffer.cpp
 all: server client
 # all用于make多个目标时 此文档执行makefile后等价于 makefile all = makefile server & makefile client
 

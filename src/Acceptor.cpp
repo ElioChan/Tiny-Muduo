@@ -4,6 +4,7 @@
 #include "Socket.h"
 #include "InetAddress.h"
 #include "util.h"
+#include <thread>
 #include <string.h>
 #include <iostream>
 
@@ -29,10 +30,13 @@ void Acceptor::acceptNewConnection(){
     InetAddress *clientAddr = new InetAddress();
     bzero(clientAddr, sizeof(clientAddr));
     int connFd = accept4(servSock->getFd(), (struct sockaddr *)clientAddr, &clientAddr->addr_len, SOCK_CLOEXEC | SOCK_NONBLOCK);
+    // int connFd = accept4(servSock->getFd(), (struct sockaddr *)clientAddr, &clientAddr->addr_len, SOCK_CLOEXEC);
     errif(connFd == -1, "connect client error");
     Socket *clientSock = new Socket(connFd);
     char addr[INET_ADDRSTRLEN];
+    std::cout << "Maximum concurrency:" << std::thread::hardware_concurrency() << std::endl;
     std::cout << "Client fd:" << clientSock->getFd() << " IP:" << inet_ntop(AF_INET, &clientAddr->addr.sin_addr, addr, clientAddr->addr_len) << std::endl;
+    // std::cout << "Thread id:" << std::this_thread::get_id() << std::endl;
     std::cout << "Port:" << ntohs(clientAddr->addr.sin_port) << std::endl;
     std::cout << "-----------------------------------------------" << std::endl;    
     newConnectionCallback(clientSock);

@@ -1,11 +1,14 @@
 #pragma once
+#include <functional>
 
-#include "Epoll.h"
-#include "Channel.h"
+class Epoll;
+class Channel;
+class ThreadPoll;
 
 class Eventloop {
 private:
     Epoll *ep;
+    ThreadPoll *threadPoll;
     bool quit;
 public:
     Eventloop();
@@ -13,4 +16,5 @@ public:
     
     void loop();
     void updateChannel(Channel*);
+    void addThread(std::function<void()>);
 };

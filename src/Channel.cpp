@@ -2,6 +2,7 @@
 #include "Epoll.h"
 #include "Eventloop.h"
 #include "util.h"
+#include <unistd.h>
 
 Channel::Channel(Eventloop *_loop, int _fd) : loop(_loop), fd(_fd), events(0), revents(0), inEpoll(false) {
 
@@ -9,16 +10,20 @@ Channel::Channel(Eventloop *_loop, int _fd) : loop(_loop), fd(_fd), events(0), r
 
 
 Channel::~Channel() {
-
+    if(fd != -1) {
+        close(fd);
+        fd = -1;
+    }
 }
 
 void Channel::enableReading() {
-    events = EPOLLIN;
+    events |= EPOLLIN | EPOLLET;
+    // events |= EPOLLIN;
     loop->updateChannel(this);
 }
 
 void Channel::handleEvent(){
-    callback(); 
+    loop->addThread(callback); 
 }
  
 int Channel::getFd() {

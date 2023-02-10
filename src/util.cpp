@@ -5,6 +5,7 @@
 
 void errif(bool condition, const char * errmsg) {
     if(condition) {
+        std::cout << errno << std::endl;
         perror(errmsg);
         exit(EXIT_FAILURE);
     }
