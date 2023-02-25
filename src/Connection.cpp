@@ -15,8 +15,10 @@
 Connection::Connection(Eventloop *_loop, Socket *_clientSock) : loop(_loop), clientSock(_clientSock), clientChannel(nullptr), readBuffer(nullptr), writeBuffer(nullptr) { 
     clientChannel = new Channel(loop, clientSock->getFd());
     std::function<void()> cb = std::bind(&Connection::echo, this, clientSock->getFd());
-    clientChannel->setcallback(cb);
-    clientChannel->enableReading();  
+    clientChannel->setReadCallback(cb);
+    clientChannel->useET();
+    clientChannel->enableReading();
+    clientChannel->setUseThreadPool(true);  
     readBuffer = new Buffer();
     writeBuffer = new Buffer();
 }
@@ -52,11 +54,15 @@ void Connection::echo(int fd) {
         std::cout << "Current data reading finished!" << std::endl;
         std::string tmp_str = readBuffer->c_str();
         std::cout << "The client " << fd << " sending:" << tmp_str << std::endl;
-        errif(write(fd, readBuffer->c_str(), readBuffer->size()) == -1, "socket write error");
+        send(fd);
         readBuffer->clear();
         break;
     } else if(bytes_read == 0) {
         std::cout << "The client " << fd << " closed connection!" << std::endl;
+        deleteCallback(clientSock->getFd());
+        break;
+    } else {
+        std::cout << "Connection reset by peer!" << std::endl;
         deleteCallback(clientSock->getFd());
         break;
     }
@@ -66,3 +72,18 @@ void Connection::echo(int fd) {
 void Connection::setDeleteCallback(std::function<void(int)> _cb) {
     deleteCallback = _cb;
 }
+
+void Connection::send(int fd) {
+    // 对写数据的封装
+    char buf[readBuffer->size()];
+    strcpy(buf, readBuffer->c_str());
+    int data_size = readBuffer->size();
+    int data_left = data_size;
+    while(data_left > 0) {
+        ssize_t bytes_write = write(fd, buf + data_size - data_left, data_left);
+        if(bytes_write == -1 && errno == EAGAIN) {
+            break;
+        }
+        data_left -= bytes_write;
+    }
+}      

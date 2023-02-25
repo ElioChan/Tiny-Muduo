@@ -1,6 +1,6 @@
-#include "ThreadPoll.h"
+#include "ThreadPool.h"
 
-ThreadPoll::ThreadPoll(int size) : stop(false){
+ThreadPool::ThreadPool(int size) : stop(false){
     for(int i = 0; i < size; ++i) {
         threads.emplace_back(std::thread([this](){
             while(true){
@@ -20,7 +20,7 @@ ThreadPoll::ThreadPoll(int size) : stop(false){
     }
 }
 
-ThreadPoll::~ThreadPoll(){
+ThreadPool::~ThreadPool(){
     {
         std::unique_lock<std::mutex> lock(tasks_mtx);
         stop = true;
@@ -31,12 +31,3 @@ ThreadPoll::~ThreadPoll(){
     }
 }
 
-void ThreadPoll::add(std::function<void()> func) {
-    {
-        // 增加任务队列 需要加锁
-        std::unique_lock<std::mutex> lock(tasks_mtx);
-        if(stop) throw std::runtime_error("ThreadPoll already sop, can't add task any more!");
-        tasks.emplace(func);
-    }
-    cv.notify_one();
-}

@@ -1,5 +1,19 @@
+# src = $(wildcard src/*.cpp)
+
+# server:
+# 	g++ -std=c++11 -pthread -g\
+# 	$(src) \
+# 	server.cpp \
+# 	-o server
+
+# client:
+# 	g++ src/util.cpp src/Buffer.cpp src/Socket.cpp src/InetAddress.cpp client.cpp -o client
+
+# clean:
+# 	rm server && rm client
+
 OBJ1 = server.cpp src/Epoll.cpp src/Socket.cpp src/InetAddress.cpp src/util.cpp src/Channel.cpp \
-       src/Server.cpp src/Eventloop.cpp src/Connection.cpp src/Acceptor.cpp src/Buffer.cpp src/ThreadPoll.cpp
+       src/Server.cpp src/Eventloop.cpp src/Connection.cpp src/Acceptor.cpp src/Buffer.cpp src/ThreadPool.cpp
 OBJ2 = client.cpp src/util.cpp src/Buffer.cpp
 all: server client
 # all用于make多个目标时 此文档执行makefile后等价于 makefile all = makefile server & makefile client

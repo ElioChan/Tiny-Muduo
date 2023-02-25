@@ -29,6 +29,14 @@ void Socket::listen() {
     errif(::listen(fd, SOMAXCONN) == -1, "listen error");
 }
 
+void Socket::setblocking() {
+    fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK);
+}
+
+void Socket::setnonblocking() {
+    fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
+}
+
 int Socket::accept(InetAddress* addr) {
     int conn_fd = ::accept4(fd, (struct sockaddr *)& addr->addr, &addr->addr_len, SOCK_CLOEXEC | SOCK_NONBLOCK);
     errif(conn_fd == -1, "accept error");

@@ -13,6 +13,8 @@ public:
 
     void bind(InetAddress*);
     void listen();
+    void setblocking();
+    void setnonblocking();
 
     int accept(InetAddress*);
     int getFd();

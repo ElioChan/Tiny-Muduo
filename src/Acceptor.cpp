@@ -16,8 +16,9 @@ Acceptor::Acceptor(Eventloop *_loop) : loop(_loop), acceptChannel(nullptr), serv
     servSock->listen();
     acceptChannel = new Channel(loop, servSock->getFd());
     std::function<void()> cb = std::bind(&Acceptor::acceptNewConnection, this);
-    acceptChannel->setcallback(cb);
+    acceptChannel->setReadCallback(cb);
     acceptChannel->enableReading();
+    acceptChannel->setUseThreadPool(false);
     delete servAddr;
 }
 
@@ -27,6 +28,7 @@ Acceptor::~Acceptor() {
 }
 
 void Acceptor::acceptNewConnection(){
+    std::cout << "I am in Acceptor.cpp acceptNewConnectino" << std::endl;
     InetAddress *clientAddr = new InetAddress();
     bzero(clientAddr, sizeof(clientAddr));
     int connFd = accept4(servSock->getFd(), (struct sockaddr *)clientAddr, &clientAddr->addr_len, SOCK_CLOEXEC | SOCK_NONBLOCK);

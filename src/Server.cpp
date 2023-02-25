@@ -34,6 +34,12 @@ void Server::newConnection(Socket *clientSock) {
 }
 
 void Server::deleteConnection(int fd) {
-    delete connections[fd];
-    connections.erase(fd);
+    if(fd != -1) {
+        auto it = connections.find(fd);
+        if(it != connections.end()) {
+            delete connections[fd];
+            connections.erase(fd);            
+        }
+    }
+
 }
